@@ -159,7 +159,10 @@ install_aur() {
 
     info "Using AUR helper: $aur_helper"
     step "Installing $AUR_PKG…"
-    "$aur_helper" -S "$AUR_PKG"
+    
+    # When piped via `curl | bash`, standard input is hijacked.
+    # We must explicitly reconnect stdin to the terminal so the user can interact.
+    "$aur_helper" -S "$AUR_PKG" </dev/tty
 
     info "Done! The udev rule was installed via the AUR package."
 }
