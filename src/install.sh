@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# fixvr: Valve Index blank EDID fix installer
+# FixVR: Valve Index blank EDID fix installer
 # https://github.com/miguvt/fixvr
 set -euo pipefail
 
@@ -188,7 +188,7 @@ install_manual() {
 # Main
 # ---------------------------------------------------------------------------
 echo
-echo -e "${BOLD}fixvr: Valve Index blank EDID fix installer${NC}"
+echo -e "${BOLD}FixVR: Valve Index blank EDID fix installer${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo
 

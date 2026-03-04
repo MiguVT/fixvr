@@ -1,4 +1,4 @@
-# fixvr
+# FixVR
 
 A tiny udev rule that fixes the Valve Index blank EDID bug on Linux, stops the kernel from seeing your HMD as a 640×480 monitor.
 

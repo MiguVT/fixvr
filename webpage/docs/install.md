@@ -1,6 +1,6 @@
 # Installation
 
-fixvr ships a single udev rule file (`99-valve-index-reboot.rules`) and a helper install script.  
+FixVR ships a single udev rule file (`99-valve-index-reboot.rules`) and a helper install script.  
 Pick the method that matches your distro. 
 
 
