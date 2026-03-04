@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   srcDir: "docs",
 
-  title: "fixvr",
+  title: "FixVR",
   description: "Fix the Valve Index blank EDID bug on Linux - a tiny udev rule that stops your HMD from appearing as a 640×480 monitor.",
 
   themeConfig: {

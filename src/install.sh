@@ -9,7 +9,7 @@ set -euo pipefail
 RULE_FILE="99-valve-index-reboot.rules"
 RULE_DST="/etc/udev/rules.d/$RULE_FILE"
 RULE_RAW_URL="https://raw.githubusercontent.com/MiguVT/fixvr/main/src/$RULE_FILE"
-AUR_PKG="fixvr"
+AUR_PKG="fixvr-git"
 
 # ---------------------------------------------------------------------------
 # Colour helpers

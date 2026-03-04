@@ -16,7 +16,7 @@ The script auto-detects your distro:
 
 | Distro family | What happens |
 |---|---|
-| Arch / Manjaro / EndeavourOS / Garuda | Installs the `fixvr` AUR package via **paru** or **yay** |
+| Arch / Manjaro / EndeavourOS / Garuda | Installs the `fixvr-git` AUR package via **paru** or **yay** |
 | Debian / Ubuntu / Mint / Pop!_OS | Copies the rule and reloads udev |
 | Fedora / RHEL / openSUSE / any other | Copies the rule and reloads udev |
 
@@ -30,11 +30,11 @@ Install with your preferred AUR helper:
 ::: code-group
 
 ```bash [paru]
-paru -S fixvr
+paru -S fixvr-git
 ```
 
 ```bash [yay]
-yay -S fixvr
+yay -S fixvr-git
 ```
 
 :::
