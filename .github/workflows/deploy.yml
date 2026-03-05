@@ -4,6 +4,8 @@ name: Deploy
 on:
   push:
     branches: [main]
+    paths:
+      - 'webpage/**'
   workflow_dispatch:
 
 permissions:
