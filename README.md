@@ -21,7 +21,7 @@ curl -fsSL https://raw.githubusercontent.com/MiguVT/fixvr/main/src/install.sh | 
 ```
 
 The script auto-detects your distro:
-- **Arch / Manjaro / EndeavourOS / …** → installs the `fixvr` AUR package via `paru` or `yay` (offers to install paru if neither is present)
+- **Arch / Manjaro / EndeavourOS / …** → installs the `fixvr-git` AUR package via `paru` or `yay` (offers to install paru if neither is present)
 - **Everything else** → copies the rule file to `/etc/udev/rules.d/` and reloads udev
 
 ### Manual
