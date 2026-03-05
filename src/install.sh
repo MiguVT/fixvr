@@ -104,6 +104,10 @@ is_arch_based() {
     echo "$DISTRO_ID_LIKE" | grep -qw "arch"
 }
 
+is_nixos() {
+    [[ "$DISTRO_ID" == "nixos" ]]
+}
+
 # ---------------------------------------------------------------------------
 # AUR install (Arch-based)
 # ---------------------------------------------------------------------------
@@ -182,7 +186,7 @@ install_manual() {
 
     step "Reloading udev rules…"
     $SUDO udevadm control --reload-rules
-    $SUDO udevadm trigger --subsystem-match=usb --subsystem-match=hidraw
+    $SUDO udevadm trigger --action=add --subsystem-match=hidraw
 
     info "Done! Reconnect your Valve Index to apply the fix."
 }
@@ -199,7 +203,19 @@ detect_distro
 step "Detected distro: ${BOLD}$DISTRO_ID${NC}${DISTRO_ID_LIKE:+ (like: $DISTRO_ID_LIKE)}"
 echo
 
-if is_arch_based; then
+if is_nixos; then
+    warn "NixOS detected. Manual file installation won't persist across rebuilds."
+    echo
+    echo -e "  Add the udev rule declaratively in your NixOS configuration instead."
+    echo -e "  See: ${CYAN}https://fixvr.miguvt.com/install#nixos${NC}"
+    echo
+    read -rp "  Install manually to /etc/udev/rules.d/ anyway? [y/N] " yn </dev/tty
+    echo
+    case "$yn" in
+        [Yy]*) install_manual ;;
+        *)     info "Skipped. Follow the NixOS instructions at the link above." ;;
+    esac
+elif is_arch_based; then
     install_aur
 else
     install_manual

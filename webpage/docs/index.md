@@ -29,4 +29,8 @@ features:
   - icon: 🪶
     title: Zero Dependencies
     details: No daemons, no background services, no kernel modules. Just a single udev rule file that works with the Linux hardware stack you already have.
+
+  - icon: 🛠️
+    title: Troubleshooting
+    details: Something not working? The install guide includes troubleshooting steps and manual trigger commands to verify the fix is running.
 ---

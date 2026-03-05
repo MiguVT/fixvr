@@ -30,7 +30,7 @@ The script auto-detects your distro:
 sudo curl -fsSL https://raw.githubusercontent.com/MiguVT/fixvr/main/src/99-valve-index-reboot.rules \
   -o /etc/udev/rules.d/99-valve-index-reboot.rules
 sudo udevadm control --reload-rules
-sudo udevadm trigger --subsystem-match=usb --subsystem-match=hidraw
+sudo udevadm trigger --action=add --subsystem-match=hidraw
 ```
 
 Reconnect your Valve Index and you're done.
