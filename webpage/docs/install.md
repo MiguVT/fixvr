@@ -6,7 +6,7 @@ Pick the method that matches your distro.
 
 ## Automatic - install script
 
-The easiest way on any distro. Clone the repo and run the script:
+The easiest way on any distro. run this script:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/MiguVT/fixvr/main/src/install.sh | bash
