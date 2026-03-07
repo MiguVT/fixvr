@@ -6,7 +6,7 @@ Pick the method that matches your distro.
 
 ## Automatic - install script
 
-The easiest way on any distro. run this script:
+The easiest way on any distro. Run this script:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/MiguVT/fixvr/main/src/install.sh | bash
@@ -19,6 +19,9 @@ The script auto-detects your distro:
 | Arch / Manjaro / EndeavourOS / Garuda | Installs the `fixvr-git` AUR package via **paru** or **yay** |
 | Debian / Ubuntu / Mint / Pop!_OS | Copies the rule and reloads udev |
 | Fedora / RHEL / openSUSE / any other | Copies the rule and reloads udev |
+::: warning
+Currently there is a bug that only allows to do the automatic installation for Arch-based distros, I will work in a fix soon
+:::
 
 > **AUR helper** — If neither `paru` nor `yay` is found, the script will offer to install paru for you.
 
