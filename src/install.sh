@@ -174,21 +174,26 @@ install_aur() {
 # ---------------------------------------------------------------------------
 # Manual install (all other distros)
 # ---------------------------------------------------------------------------
+#install_manual() {
+#    setup_sudo
+#
+#    local rule_src
+#    rule_src="$(find_rule_file)"
+#    step "Rule file found: $rule_src"
+#
+#    step "Installing udev rule to $RULE_DST…"
+#    $SUDO install -m 644 -o root -g root "$rule_src" "$RULE_DST"
+#
+#    step "Reloading udev rules…"
+#    $SUDO udevadm control --reload-rules
+#    $SUDO udevadm trigger --action=add --subsystem-match=hidraw
+#
+#    info "Done! Reconnect your Valve Index to apply the fix."
+#}
+
 install_manual() {
-    setup_sudo
-
-    local rule_src
-    rule_src="$(find_rule_file)"
-    step "Rule file found: $rule_src"
-
-    step "Installing udev rule to $RULE_DST…"
-    $SUDO install -m 644 -o root -g root "$rule_src" "$RULE_DST"
-
-    step "Reloading udev rules…"
-    $SUDO udevadm control --reload-rules
-    $SUDO udevadm trigger --action=add --subsystem-match=hidraw
-
-    info "Done! Reconnect your Valve Index to apply the fix."
+    warn "Currently there is a bug with the script that only works with AUR, follow the manual installation tutorial."
+    echo -e "  See: ${CYAN}https://fixvr.miguvt.com/install${NC}"
 }
 
 # ---------------------------------------------------------------------------
