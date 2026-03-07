@@ -55,13 +55,13 @@ find_rule_file() {
 
     for f in "${candidates[@]}"; do
         if [[ -f "$f" ]]; then
-            echo "$f"
+            printf '%s\n' "$f"
             return 0
         fi
     done
 
     # Not found locally (e.g. run via curl | bash) — download from GitHub
-    warn "Rule file not found locally, downloading from GitHub…"
+    warn "Rule file not found locally, downloading from GitHub…" >&2
     local tmp_rule
     tmp_rule="$(mktemp "/tmp/${RULE_FILE}.XXXXXX")"
 
@@ -73,7 +73,8 @@ find_rule_file() {
         die "Rule file not found locally and neither curl nor wget is available."
     fi
 
-    echo "$tmp_rule"
+    [[ -s "$tmp_rule" ]] || die "Downloaded rule file is empty."
+    printf '%s\n' "$tmp_rule"
 }
 
 # ---------------------------------------------------------------------------
@@ -174,26 +175,22 @@ install_aur() {
 # ---------------------------------------------------------------------------
 # Manual install (all other distros)
 # ---------------------------------------------------------------------------
-#install_manual() {
-#    setup_sudo
-#
-#    local rule_src
-#    rule_src="$(find_rule_file)"
-#    step "Rule file found: $rule_src"
-#
-#    step "Installing udev rule to $RULE_DST…"
-#    $SUDO install -m 644 -o root -g root "$rule_src" "$RULE_DST"
-#
-#    step "Reloading udev rules…"
-#    $SUDO udevadm control --reload-rules
-#    $SUDO udevadm trigger --action=add --subsystem-match=hidraw
-#
-#    info "Done! Reconnect your Valve Index to apply the fix."
-#}
-
 install_manual() {
-    warn "Currently there is a bug with the script that only works with AUR, follow the manual installation tutorial."
-    echo -e "  See: ${CYAN}https://fixvr.miguvt.com/install${NC}"
+    setup_sudo
+
+    local rule_src
+    rule_src="$(find_rule_file)"
+    [[ -f "$rule_src" ]] || die "Rule file not found: $rule_src"
+    step "Rule file found: $rule_src"
+
+    step "Installing udev rule to $RULE_DST…"
+    $SUDO install -m 644 -o root -g root "$rule_src" "$RULE_DST"
+
+    step "Reloading udev rules…"
+    $SUDO udevadm control --reload-rules
+    $SUDO udevadm trigger --action=add --subsystem-match=hidraw
+
+    info "Done! Reconnect your Valve Index to apply the fix."
 }
 
 # ---------------------------------------------------------------------------
