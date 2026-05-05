@@ -15,9 +15,13 @@ for dev in /dev/hidraw*; do
   p="${p#0x}"
 
   if [ "$v" = "$VID" ] && [ "$p" = "$PID" ]; then
-    printf '\x16\x01' | cat - /dev/zero | head -c 64 > "$dev" || true
-    : > "$FLAG"
-    exit 0
+    if printf '\x16\x01' | cat - /dev/zero | head -c 64 > "$dev"; then
+      : > "$FLAG"
+      exit 0
+    else
+      echo "Failed to write reboot command to $dev" >&2
+      exit 1
+    fi
   fi
 done
 
