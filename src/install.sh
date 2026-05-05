@@ -197,6 +197,10 @@ install_aur() {
 install_manual() {
     setup_sudo
 
+    if ! command -v systemctl &>/dev/null; then
+        die "systemd is required for this fix (the udev rule uses SYSTEMD_WANTS).\n  Please use a systemd-based distro or install the files manually."
+    fi
+
     local rule_src script_src service_src hook_src
     rule_src="$(find_or_download "$RULE_FILE" "$RULE_RAW_URL")"
     script_src="$(find_or_download "$SCRIPT_FILE" "$SCRIPT_RAW_URL")"
