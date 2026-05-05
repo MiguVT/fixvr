@@ -1,6 +1,6 @@
 # Valve Index HMD: fix blank EDID
-# Works around blank EDID bug that makes the kernel see the HMD as a 640x480 monitor.
-# Sends a HID reboot command once per boot when the device is enumerated.
-# /tmp is cleared on boot so the flag resets automatically.
+# Trigger systemd service on device add.
 
-KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="28de", ATTRS{idProduct}=="2300", ACTION=="add", RUN+="/bin/sh -c '(sleep 2; test -f /tmp/.valve-index-rebooted || { printf \"\\x16\\x01\" | cat - /dev/zero | head -c 64 > /dev/%k && touch /tmp/.valve-index-rebooted; }) &'"
+ACTION=="add", SUBSYSTEM=="hidraw", KERNEL=="hidraw*", \
+  ATTRS{idVendor}=="28de", ATTRS{idProduct}=="2300", \
+  TAG+="systemd", ENV{SYSTEMD_WANTS}+="valve-index-hid-reboot@%k.service"
