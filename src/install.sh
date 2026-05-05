@@ -43,6 +43,10 @@ die()   { echo -e "${RED}[✗]${NC} $*" >&2; exit 1; }
 # Helpers
 # ---------------------------------------------------------------------------
 SUDO=""
+_TMP_FILES=()    # tracks temp files downloaded by find_or_download
+_cleanup_tmp() { [[ ${#_TMP_FILES[@]} -gt 0 ]] && rm -f "${_TMP_FILES[@]}"; }
+trap '_cleanup_tmp' EXIT
+
 setup_sudo() {
     if [[ $EUID -eq 0 ]]; then
         SUDO=""
@@ -78,6 +82,7 @@ find_or_download() {
     warn "File $filename not found locally, downloading from GitHub…" >&2
     local tmp_file
     tmp_file="$(mktemp "/tmp/${filename}.XXXXXX")"
+    _TMP_FILES+=("$tmp_file")
 
     if command -v curl &>/dev/null; then
         curl -fsSL "$url" -o "$tmp_file" || die "Failed to download $filename."
