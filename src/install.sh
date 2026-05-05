@@ -7,8 +7,21 @@ set -euo pipefail
 # Config
 # ---------------------------------------------------------------------------
 RULE_FILE="99-valve-index-reboot.rules"
+SCRIPT_FILE="valve-index-hid-reboot.sh"
+SERVICE_FILE="valve-index-hid-reboot@.service"
+HOOK_FILE="valve-index-hid-reboot"
+
 RULE_DST="/etc/udev/rules.d/$RULE_FILE"
-RULE_RAW_URL="https://raw.githubusercontent.com/MiguVT/fixvr/main/src/$RULE_FILE"
+SCRIPT_DST="/usr/local/sbin/$SCRIPT_FILE"
+SERVICE_DST="/etc/systemd/system/$SERVICE_FILE"
+HOOK_DST="/etc/systemd/system-sleep/$HOOK_FILE"   # Universal, distro-agnostic
+
+RAW_BASE="https://raw.githubusercontent.com/MiguVT/fixvr/main/src"
+RULE_RAW_URL="$RAW_BASE/$RULE_FILE"
+SCRIPT_RAW_URL="$RAW_BASE/$SCRIPT_FILE"
+SERVICE_RAW_URL="$RAW_BASE/$SERVICE_FILE"
+HOOK_RAW_URL="$RAW_BASE/$HOOK_FILE"
+
 AUR_PKG="fixvr-git"
 
 # ---------------------------------------------------------------------------
@@ -40,17 +53,19 @@ setup_sudo() {
     fi
 }
 
-# Locate the rule file relative to this script (works when called from anywhere)
-# Falls back to downloading from GitHub when run via curl | bash
-find_rule_file() {
+# Locate a file relative to this script, fallback to download from GitHub
+find_or_download() {
+    local filename="$1"
+    local url="$2"
+
     local script_dir
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
     local candidates=(
-        "$script_dir/$RULE_FILE"               # running from src/
-        "$script_dir/../src/$RULE_FILE"        # running from repo root
-        "$(pwd)/src/$RULE_FILE"                # cwd is repo root
-        "$(pwd)/$RULE_FILE"                    # cwd is src/
+        "$script_dir/$filename"           # running from src/
+        "$script_dir/../src/$filename"    # running from repo root
+        "$(pwd)/src/$filename"            # cwd is repo root
+        "$(pwd)/$filename"                # cwd is src/
     )
 
     for f in "${candidates[@]}"; do
@@ -60,21 +75,20 @@ find_rule_file() {
         fi
     done
 
-    # Not found locally (e.g. run via curl | bash) — download from GitHub
-    warn "Rule file not found locally, downloading from GitHub…" >&2
-    local tmp_rule
-    tmp_rule="$(mktemp "/tmp/${RULE_FILE}.XXXXXX")"
+    warn "File $filename not found locally, downloading from GitHub…" >&2
+    local tmp_file
+    tmp_file="$(mktemp "/tmp/${filename}.XXXXXX")"
 
     if command -v curl &>/dev/null; then
-        curl -fsSL "$RULE_RAW_URL" -o "$tmp_rule" || die "Failed to download rule file from GitHub."
+        curl -fsSL "$url" -o "$tmp_file" || die "Failed to download $filename."
     elif command -v wget &>/dev/null; then
-        wget -qO "$tmp_rule" "$RULE_RAW_URL" || die "Failed to download rule file from GitHub."
+        wget -qO "$tmp_file" "$url" || die "Failed to download $filename."
     else
-        die "Rule file not found locally and neither curl nor wget is available."
+        die "Neither curl nor wget is available to download $filename."
     fi
 
-    [[ -s "$tmp_rule" ]] || die "Downloaded rule file is empty."
-    printf '%s\n' "$tmp_rule"
+    [[ -s "$tmp_file" ]] || die "Downloaded $filename is empty."
+    printf '%s\n' "$tmp_file"
 }
 
 # ---------------------------------------------------------------------------
@@ -164,12 +178,12 @@ install_aur() {
 
     info "Using AUR helper: $aur_helper"
     step "Installing $AUR_PKG…"
-    
+
     # When piped via `curl | bash`, standard input is hijacked.
     # We must explicitly reconnect stdin to the terminal so the user can interact.
     "$aur_helper" -S "$AUR_PKG" </dev/tty
 
-    info "Done! The udev rule was installed via the AUR package."
+    info "Done! The files were installed via the AUR package."
 }
 
 # ---------------------------------------------------------------------------
@@ -178,19 +192,30 @@ install_aur() {
 install_manual() {
     setup_sudo
 
-    local rule_src
-    rule_src="$(find_rule_file)"
-    [[ -f "$rule_src" ]] || die "Rule file not found: $rule_src"
-    step "Rule file found: $rule_src"
+    local rule_src script_src service_src hook_src
+    rule_src="$(find_or_download "$RULE_FILE" "$RULE_RAW_URL")"
+    script_src="$(find_or_download "$SCRIPT_FILE" "$SCRIPT_RAW_URL")"
+    service_src="$(find_or_download "$SERVICE_FILE" "$SERVICE_RAW_URL")"
+    hook_src="$(find_or_download "$HOOK_FILE" "$HOOK_RAW_URL")"
 
     step "Installing udev rule to $RULE_DST…"
     $SUDO install -m 644 -o root -g root "$rule_src" "$RULE_DST"
 
-    step "Reloading udev rules…"
+    step "Installing script to $SCRIPT_DST…"
+    $SUDO install -m 755 -o root -g root "$script_src" "$SCRIPT_DST"
+
+    step "Installing systemd service to $SERVICE_DST…"
+    $SUDO install -m 644 -o root -g root "$service_src" "$SERVICE_DST"
+
+    step "Installing systemd sleep hook to $HOOK_DST…"
+    $SUDO install -m 755 -o root -g root "$hook_src" "$HOOK_DST"
+
+    step "Reloading systemd and udev…"
+    $SUDO systemctl daemon-reload
     $SUDO udevadm control --reload-rules
     $SUDO udevadm trigger --action=add --subsystem-match=hidraw
 
-    info "Done! Reconnect your Valve Index to apply the fix."
+    info "Done! Reconnect your Valve Index or resume from sleep to apply the fix."
 }
 
 # ---------------------------------------------------------------------------
@@ -208,10 +233,10 @@ echo
 if is_nixos; then
     warn "NixOS detected. Manual file installation won't persist across rebuilds."
     echo
-    echo -e "  Add the udev rule declaratively in your NixOS configuration instead."
+    echo -e "  Add the files declaratively in your NixOS configuration instead."
     echo -e "  See: ${CYAN}https://fixvr.miguvt.com/install#nixos${NC}"
     echo
-    read -rp "  Install manually to /etc/udev/rules.d/ anyway? [y/N] " yn </dev/tty
+    read -rp "  Install manually anyway? [y/N] " yn </dev/tty
     echo
     case "$yn" in
         [Yy]*) install_manual ;;
