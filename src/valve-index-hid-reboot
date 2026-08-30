@@ -1,0 +1,8 @@
+#!/bin/sh
+case "$1" in
+  post)
+    rm -f /run/.valve-index-rebooted
+    sleep 2
+    /usr/local/sbin/valve-index-hid-reboot.sh
+    ;;
+esac

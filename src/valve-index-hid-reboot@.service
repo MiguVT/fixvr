@@ -1,0 +1,8 @@
+[Unit]
+Description=Valve Index HID reboot for /dev/%I
+After=systemd-udevd.service
+ConditionPathExists=/dev/%I
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/flock /run/valve-index-hid-reboot.lock /bin/sh -c 'sleep 2; if ! test -f /run/.valve-index-rebooted; then /usr/local/sbin/valve-index-hid-reboot.sh; fi'
